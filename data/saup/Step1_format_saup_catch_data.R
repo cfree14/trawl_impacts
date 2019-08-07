@@ -58,5 +58,44 @@ plot(tl_mt ~ year, rep_mt, type="l", bty="n", ylim=c(0,80), xlab="", ylab="Repor
 
 
 
+# Percent of each stock caught by trawl fisheries
+################################################################################
+
+# Trawl gears
+trawl_gears <- c("beam trawl", "bottom trawl", "otter trawl", "pelagic trawl", "shrimp trawl")
+
+# Average over last X years
+n_yrs <- 5
+
+# Percent of both reported and total catch coming from trawl fisheries (mean last 5 years)
+stats <- data %>% 
+  # Add column for trawl/non-trawl
+  mutate(trawl=ifelse(gear_type %in% trawl_gears, "trawl", "non-trawl")) %>% 
+  # Calculate reported/total catch by trawl/non-trawl in each year
+  group_by(area_name, scientific_name, common_name, trawl, year) %>% 
+  summarize(reported_mt=sum(tonnes[reporting_status=="Reported"], na.rm=T),
+            total_mt=sum(tonnes, na.rm=T)) %>% 
+  # Reduce to last 5 years
+  filter(year %in% (max(year)-n_yrs+1): max(year)) %>% 
+  # Calculate stock-level stats
+  group_by(area_name, scientific_name, common_name, year) %>% 
+  summarize(trawl_mt_rep=sum(reported_mt[trawl=="trawl"], na.rm=T),
+            total_mt_rep=sum(reported_mt, na.rm=T),
+            trawl_perc_rep=trawl_mt_rep/total_mt_rep,
+            trawl_mt_tot=sum(reported_mt[trawl=="trawl"], na.rm=T),
+            total_mt_tot=sum(reported_mt, na.rm=T),
+            trawl_perc_tot=trawl_mt_tot/total_mt_tot) %>% 
+  # Calculate mean
+  group_by(area_name, scientific_name, common_name) %>% 
+  summarize(trawl_perc_rep=mean(trawl_perc_rep, na.rm=T)*100,
+            trawl_perc_tot=mean(trawl_perc_tot, na.rm=T)*100) %>% 
+  # Add stockid column
+  mutate(stockid=paste(area_name, scientific_name, sep="-"))
+
+# Export
+write.csv(stats, file=file.path(outputdir, "saup_trawl_percent_key.csv"), row.names=F)
+
+
+
 
 

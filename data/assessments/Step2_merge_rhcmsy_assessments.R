@@ -24,6 +24,10 @@ rm(data)
 stock_key <- stocks
 rm(stocks)
 
+# Read habitat key and trawl percentage key
+hab_key <- read.csv(file.path(inputdir, "SAUP_species_taxonomy_resilience.csv"), as.is=T)
+ptrawl_key <- read.csv(file.path(inputdir, "saup_trawl_percent_key.csv"), as.is=T)
+
 # Merge files
 ################################################################################
 
@@ -89,7 +93,10 @@ ref_key <- data_merged %>%
 # Add MSY ref point key to stock key
 stocks <- stock_key %>% 
   ungroup() %>% 
-  left_join(ref_key, by="stockid")
+  left_join(ref_key, by="stockid") %>% 
+  left_join(select(hab_key, species_saup, habitat), by="species_saup") %>% 
+  left_join(select(ptrawl_key, stockid, trawl_perc_rep, trawl_perc_tot), by="stockid") %>% 
+  select(stockid:resilience, habitat, trawl_perc_rep, trawl_perc_tot, everything())
 
 
 # Export data
@@ -97,40 +104,4 @@ stocks <- stock_key %>%
 
 # Export
 save(stocks, data, file=file.path(outputdir1, "SAUP_LME_rhcmsy_results.Rdata"))
-
-
-# Plot data
-################################################################################
-
-# Theme
-my_theme <- theme(axis.text=element_text(size=7),
-                  axis.title=element_text(size=9),
-                  plot.title=element_text(size=11),
-                  # panel.grid.major = element_blank(), 
-                  # panel.grid.minor = element_blank(),
-                  panel.background = element_blank(), 
-                  axis.line = element_line(colour = "black"))
-
-# Terminal B/BMSY
-g <- ggplot(stocks, aes(x=bbmsy_last, fill=status_last)) +
-  geom_histogram(binwidth=0.05, boundary=0) +
-  labs(x=expression("B/B"["MSY"]), y="Frequency") +
-  scale_fill_discrete(name="Status") +
-  theme_bw() + my_theme
-g
-ggsave(g, filename=file.path(plotdir, "figure_saup_stock_status.png"), width=6.5, height=3.5, units="in", dpi=600)
-
-
-
-# Terminal U/UMSY
-g <- ggplot(stocks, aes(x=uumsy_last)) +
-  geom_histogram(binwidth=0.05) +
-  labs(x=expression("F/F"["MSY"]), y="Frequency") +
-  theme_bw()
-g
-  
-  
-
-
-
 

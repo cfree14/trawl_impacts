@@ -10,6 +10,7 @@ options(scipen = 999)
 library(taxize)
 library(tidyverse)
 library(seaaroundus)
+library(rfishbase)
 
 # Directories
 inputdir <- "data/saup/raw"
@@ -108,11 +109,26 @@ spp_key1 <- spp_key %>%
 spp_res <- datalimited2::resilience(spp_key1$species)
 spp_taxa <- freeR::taxa(spp_key1$species)
 
+# Get FishBase habitat info
+fish <- spp_taxa$sciname[spp_taxa$type=="fish"]
+spp_fb <- species(fish, fields=c("Species", "DemersPelag"), server="fishbase") %>% 
+  rename(species=Species, habitat=DemersPelag)
+
+# Get SeaLifeBase habitat info
+invs <- spp_taxa$sciname[spp_taxa$type=="invert"]
+spp_slb <- species(invs, fields=c("Species", "DemersPelag"), server="sealifebase") %>% 
+  rename(species=Species, habitat=DemersPelag)
+
+# Merge FB/SLB habitat info
+spp_habs <- rbind(spp_fb, spp_slb) %>% 
+  filter(!is.na(species))
+
 # Build key
 spp_key2 <- spp_key1 %>% 
   left_join(select(spp_taxa, -species), by=c("species"="sciname")) %>% 
   left_join(spp_res, by="species") %>% 
-  select(type:genus, species, species_orig, comm_name, resilience) %>% 
+  left_join(spp_habs, by="species") %>% 
+  select(type:genus, species, species_orig, comm_name, resilience, habitat) %>% 
   rename(species_saup=species_orig)
 
 # Inspect and export
