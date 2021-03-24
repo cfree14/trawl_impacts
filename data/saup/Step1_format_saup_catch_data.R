@@ -28,6 +28,8 @@ sort(unique(data$commercial_group))
 sort(unique(data$fishing_entity)) # EEZs
 sort(unique(data$fishing_sector))
 sort(unique(data$gear_type))
+sort(unique(data$catch_type))
+
 
 # Format data
 ################################################################################

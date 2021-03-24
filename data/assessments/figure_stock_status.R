@@ -75,10 +75,28 @@ lme <- stocks %>%
             bbmsy_avg=mean(bbmsy_last, na.rm=T))
 
 
-# Plot mean status by LME
-g <- ggplot(lmes) +
-  geom_sf()
+# Plot data
+################################################################################
+
+
+g <- ggplot(data %>% filter(year==2014), aes(x=bbmsy, y=uumsy)) +
+  geom_point() +
+  xlim(0,2) +
+  ylim(0,4) +
+  theme_bw()
 g
+
+stocks <- stocks %>% 
+  mutate(f=-log(1-er_last),
+         ffmsy_last_fixed=f/fmsy)
+
+g <- ggplot(stocks, aes(x=bbmsy_last, y=ffmsy_last_fixed)) +
+  geom_point() +
+  xlim(0,2) +
+  ylim(0,4) +
+  theme_bw()
+g
+
 
 
 
