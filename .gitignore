@@ -1,7 +1,14 @@
+
+# Hidden files
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+
+# Large folders
 data/assessments/raw
 data/saup/raw
 approach2/output/raw
+
+# Large files
+approach2/output/processed/SAUP_stock_status_posterior.csv
