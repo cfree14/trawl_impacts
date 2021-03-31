@@ -44,20 +44,27 @@ data_merged <- purrr::map_df(files, function(x) {
   # Indexes to sample
   index_use <- sample(1:ncol(output$bbmsy_v), size=pmin(n_use, ncol(output$bbmsy_v)))
   
-  # Status viable
-  bbmsy_v <- output$bbmsy_v[nrow(output$bbmsy_v), ]
-  uumsy_v <- output$uumsy_v[nrow(output$bbmsy_v), ]
+  # Status viable (last year)
+  nyr <- nrow(output$bbmsy_v)
+  b_v <- output$b_v[nyr, ]
+  er_v <- output$er_v[nyr, ]
+  bbmsy_v <- output$bbmsy_v[nyr, ]
+  uumsy_v <- output$uumsy_v[nyr, ]
   
   # MSY viable
   p <- 0.2
   r_v <- output$id_rk_v$r
-  k_v <- output$id_rk_v$r
+  k_v <- output$id_rk_v$k
   msy_v <- r_v*k_v*(1/(p+1))^(1+1/p)
   
   # Assemble
   out <- tibble(stockid=stockid,
                 iteration=1:length(bbmsy_v),
-                msy=msy_v,
+                r=r_v,
+                k=k_v,
+                msy_mt=msy_v,
+                biomass_mt=b_v,
+                er=er_v,
                 bbmsy=bbmsy_v, 
                 uumsy=uumsy_v)
   
@@ -68,5 +75,6 @@ data_merged <- purrr::map_df(files, function(x) {
 ################################################################################
 
 # Export
-write.csv(data_merged, file=file.path(outputdir1, "SAUP_stock_status_posterior.csv"), row.names=F)
+saveRDS(data_merged, file=file.path(outputdir1, "SAUP_stock_status_posterior.rds"))
+# write.csv(data_merged, file=file.path(outputdir1, "SAUP_stock_status_posterior.csv"), row.names=F)
 

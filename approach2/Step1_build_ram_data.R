@@ -17,6 +17,8 @@ datadir <- "approach2/data"
 # Read RAM Legacy Database v4.491 (with model fits)
 load("/Users/cfree/Dropbox/Chris/UCSB/data/ramldb/RAM v4.491 Files (1-14-20)/RAM v4.491/DB Files With Model Fit Data/R Data/DBdata[mdl][v4.491].RData")
 
+# RAM surplus production model fits
+ram_sp <- read.csv(file.path(datadir, "RAM_sp_model_fits.csv"), as.is = T) 
 
 # Build stock key
 ################################################################################
@@ -56,45 +58,81 @@ stock_key <- stock %>%
 # Get MSY and recent U/UMSY value
 ################################################################################
 
-# Get MSY
-stock_msy <- bioparams_values_views %>% 
-  select(stockid, MSYbest) %>% 
-  # Add source
-  left_join(bioparams_sources_views %>% select(stockid, MSYbest), by="stockid") %>% 
-  # Add units
-  left_join(bioparams_units_views %>% select(stockid, MSYbest), by="stockid") %>% 
-  # Add notes
-  left_join(bioparams_notes_views %>% select(stockid, MSYbest), by="stockid") %>% 
-  # Clean up
-  rename(msy=MSYbest.x, msy_source=MSYbest.y, msy_units=MSYbest.x.x, msy_code=MSYbest.y.y) %>% 
-  # Arrange
-  select(stockid, msy_source, msy_code, msy_units, msy, everything())
+# Set assumed shape parameter
+p <- 0.2
 
-# Get U/UMSY
-stock_uumsy <- timeseries_values_views %>% 
-  # Reduce to U/UMSY time series
-  select(stockid, year, BdivBmsypref, UdivUmsypref) %>% 
-  rename(bbmsy=BdivBmsypref, uumsy=UdivUmsypref) %>% 
-  filter(!is.na(uumsy) & year<=2014) %>% 
+# MSY reference points
+stock_msy <- bioparams_values_views %>% 
+  select(stockid, MSYbest, TBmsybest, ERmsybest) %>% 
+  rename(msy=MSYbest, bmsy=TBmsybest, umsy=ERmsybest) %>% 
+  # Add source
+  left_join(bioparams_sources_views %>% select(stockid,MSYbest, TBmsybest, ERmsybest), by="stockid") %>%
+  rename(msy_source=MSYbest, bmsy_source=TBmsybest, umsy_source=ERmsybest) %>% 
+  # Add units
+  left_join(bioparams_units_views %>% select(stockid, MSYbest, TBmsybest, ERmsybest), by="stockid") %>% 
+  rename(msy_units=MSYbest, bmsy_units=TBmsybest, umsy_units=ERmsybest) %>% 
+  # Add notes
+  left_join(bioparams_notes_views %>% select(stockid, MSYbest, TBmsybest, ERmsybest), by="stockid") %>% 
+  rename(msy_notes=MSYbest, bmsy_notes=TBmsybest, umsy_notes=ERmsybest) %>% 
+  # Derive r/k
+  mutate(p=p,
+         r = umsy * p / (1-1/(p+1)),
+         k = bmsy / (1 / (p+1)) ^ (1/p),
+         msy_sp=umsy*bmsy,
+         msy_pdiff=(msy_sp-msy)/msy*100,
+         rk_use=ifelse(abs(msy_pdiff)<30, T, F)) %>% 
+  # Arrange
+  select(stockid, msy, bmsy, umsy, p, r, k, msy_sp, everything())
+
+# Plot MSY RAM against MSY SP
+g <- ggplot(stock_msy, aes(x=msy/1e6, y=msy_sp/1e6, color=rk_use)) +
+  geom_point() +
+  # Ref line
+  geom_abline(slope=1) +
+  # Limits
+  lims(x=c(0,1), y=c(0,1)) +
+  # Labels
+  labs(x="RAM-provided MSY estimate\n(millions of mt)", y="SP-derived MSY estimates\n(millions of mt)") +
+  # Theme
+  theme_bw()
+g
+
+  
+# Get recent status: B/BMSY/UMSY
+stock_status <- timeseries_values_views %>% 
+  # Reduce to important time series
+  select(stockid, year, TBbest, TCbest, BdivBmsypref, UdivUmsypref) %>% 
+  rename(biomass=TBbest, catch=TCbest, bbmsy=BdivBmsypref, uumsy=UdivUmsypref) %>% 
+  filter(!is.na(biomass) & !is.na(catch) &  year<=2014) %>% 
   # Reduce to current
   group_by(stockid) %>% 
   arrange(desc(year)) %>% 
   slice(1) %>% 
   # Add source
-  left_join(timeseries_sources_views %>% select(stockid, BdivBmsypref, UdivUmsypref)) %>% 
-  rename(bbmsy_source=BdivBmsypref, uumsy_source=UdivUmsypref) %>% 
+  left_join(timeseries_sources_views %>% select(stockid, TBbest, TCbest,  BdivBmsypref, UdivUmsypref)) %>% 
+  rename(biomass_source=TBbest, catch_source=TCbest, bbmsy_source=BdivBmsypref, uumsy_source=UdivUmsypref) %>% 
+  # Add units
+  left_join(timeseries_units_views %>% select(stockid, TBbest, TCbest,  BdivBmsypref, UdivUmsypref)) %>% 
+  rename(biomass_units=TBbest, catch_units=TCbest, bbmsy_units=BdivBmsypref, uumsy_units=UdivUmsypref) %>% 
   # Add note
-  left_join(timeseries_ids_views %>% select(stockid, BdivBmsypref, UdivUmsypref)) %>% 
-  rename(bbmsy_notes=BdivBmsypref, uumsy_notes=UdivUmsypref)
-
+  left_join(timeseries_ids_views %>% select(stockid, TBbest, TCbest,  BdivBmsypref, UdivUmsypref)) %>% 
+  rename(biomass_notes=TBbest, catch_notes=TCbest, bbmsy_notes=BdivBmsypref, uumsy_notes=UdivUmsypref) 
+  
 # Expand stock key 
 stocks1 <- stock_key %>% 
   # Add MSY info
   left_join(stock_msy, by="stockid") %>% 
   # Add U/UMSY info
-  left_join(stock_uumsy, by="stockid") %>% 
+  left_join(stock_status, by="stockid") %>% 
   # Reduce to stocks with requirements
-  filter(!is.na(msy) & !is.na(uumsy))
+  filter(rk_use==T & !is.na(r) & !is.na(k) & !is.na(biomass) & !is.na(catch) & biomass_units=="MT" & catch_units=="MT" & msy_units=="MT") %>% 
+  # Add ER
+  mutate(er=catch/biomass) %>% 
+  # Rename
+  rename(msy_mt=msy, biomass_mt=biomass, catch_mt=catch, k_mt_est=k, r_est=r, msy_mt_est=msy_sp, bmsy_mt=bmsy) %>% 
+  # Arrange
+  select(stockid:comm_name, year, msy_mt, bmsy_mt, umsy, bbmsy, uumsy, biomass_mt, catch_mt, er, r_est, k_mt_est, msy_mt_est)
+  
 
 # Inspect
 freeR::complete(stocks1)
@@ -200,8 +238,6 @@ lme_key <- readxl::read_excel(file.path(datadir, "RAM_stock_lme_key.xlsx")) %>%
 stocks2 <- stocks1 %>% 
   # Remove stocks without any catch time series
   filter(stockid %in% catch_ts_exp$stockid) %>% 
-  # Add catch in last year of assessment
-  left_join(catch_ts, by=c("stockid", "year")) %>% 
   # Add large marine ecoregion
   left_join(lme_key) %>% 
   # Arrange

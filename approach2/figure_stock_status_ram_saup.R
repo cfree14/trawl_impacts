@@ -29,18 +29,27 @@ rm(data, stocks)
 
 # RAM
 stocks_ram1 <- stocks_ram %>% 
+  # Add source
   mutate(source="RAM") %>% 
-  rename(msy_mt=msy) %>% 
-  select(source, stockid, lme, comm_name, species, year, msy_mt, bbmsy, uumsy)
+  # Rename columns
+  select(-msy_mt) %>% 
+  rename(r=r_est, k_mt=k_mt_est, msy_mt=msy_mt_est) %>% 
+  # Arrange
+  select(source, stockid, lme, comm_name, species, year, biomass_mt, er, bbmsy, uumsy, msy_mt, bmsy_mt, umsy, r, k_mt)
 
 # SAUP
 stocks_saup1 <- stocks_saup %>% 
-  mutate(source="SAUP", year=2014) %>% 
-  rename(bbmsy=bbmsy_last, uumsy=uumsy_last) %>% 
-  select(source, stockid, lme, comm_name, species, year, msy_mt, bbmsy, uumsy)
+  # Add source and year
+  mutate(source="SAUP") %>% 
+  # Rename columns
+  rename(year=year_last, bbmsy=bbmsy_last, uumsy=uumsy_last, umsy=fmsy, er=er_last, biomass_mt=biomass_mt_last) %>%
+  # Arrange
+  select(source, stockid, lme, comm_name, species, year, biomass_mt, er, bbmsy, uumsy, msy_mt, bmsy_mt, umsy, r, k_mt)
 
 # Merge
 stocks <- bind_rows(stocks_ram1, stocks_saup1)
+
+table(stocks$source)
 
 # Export
 write.csv(stocks, file=file.path(outputdir, "RAM_SAUP_terminal_status.csv"), row.names = F)

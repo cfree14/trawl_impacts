@@ -100,7 +100,6 @@ g <- gridExtra::grid.arrange(g1, g2, ncol=1, heights=c(0.7,0.3))
 g
 
 # Export plot
-# Export data
 ggsave(g, filename=file.path(plotdir, "figure_ram_saup_catch_ts.png"), 
        width=6.5, height=4.5, units="in", dpi=600)
 

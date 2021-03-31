@@ -24,7 +24,7 @@ stocks <- read.csv(file=file.path(datadir, "RAM_stock_metadata.csv"), as.is=T)
 ################################################################################
 
 # Plot
-g <- ggplot(stocks, aes(x=pmin(bbmsy,4), y=pmin(uumsy,4), size=msy/1e6, fill=year)) +
+g <- ggplot(stocks, aes(x=pmin(bbmsy,4), y=pmin(uumsy,4), size=msy_mt/1e6, fill=year)) +
   # Lines
   geom_hline(yintercept = 1) +
   geom_vline(xintercept = 1) +
