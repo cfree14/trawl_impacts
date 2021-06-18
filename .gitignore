@@ -9,6 +9,8 @@
 data/assessments/raw
 data/saup/raw
 approach2/output/raw
+approach3/output/raw
 
 # Large files
 approach2/output/processed/SAUP_stock_status_posterior.csv
+approach3/output/processed/SAUP_stock_status_posterior.Rds
