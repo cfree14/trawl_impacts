@@ -1,6 +1,6 @@
 # Avoiding tradeoffs between global seafood production and seafloor impacts through fisheries innovation
 
-This is the GitHub repository for the following paper:
+This is the GitHub repository for catch-only stock assessment analysis conducted for the following paper:
 
 Smeltz TS, Free CM, Harris BP, Jensen OP, Grabowski JH, Sethi SA (in review). Avoiding tradeoffs between global seafood production and seafloor impacts through fisheries innovation. In second review at _Nature Food_.
 
