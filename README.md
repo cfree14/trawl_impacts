@@ -8,7 +8,7 @@ This is the GitHub repository for the catch-only stock assessment analysis condu
 
 The analysis relies on the Robin Hood CMSY method (RH-CMSY) of data-poor stock assessment, which is documented and provided in this GitHub repository: https://github.com/cfree14/rh_cmsy
 
-* Free, C.M., Jensen, O.P. (2020) Robin Hood cMSY: using catch data and borrowed information to assess data-poor fish stocks. Available at: https://github.com/cfree14/rh_cmsy/. DOI: https://doi.org/10.5281/zenodo.3866384.
+* Free CM, Jensen OP (2020) Robin Hood cMSY: using catch data and borrowed information to assess data-poor fish stocks. Available at: https://github.com/cfree14/rh_cmsy/. DOI: https://doi.org/10.5281/zenodo.3866384.
 
 
 ## Repository structure
