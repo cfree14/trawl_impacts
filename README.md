@@ -16,6 +16,6 @@ The analysis relies on the Robin Hood CMSY method (RH-CMSY) of data-poor stock a
 Coming soon.
 
 
-## Contact
+## Contact information
 
 Please contact Scott Smeltz (ts428@cornell.edu) with questions about the paper and Chris Free (cfree14@gmail.com) with questions about this repository.
