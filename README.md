@@ -1,3 +1,7 @@
-# Fisheries reform and the global trawl footprint
+# Avoiding tradeoffs between global seafood production and seafloor impacts through fisheries innovation
 
-This is the GitHub repository for a project to examine the impact of fisheries management reform on the global trawl fishing footprint and terrestrial land use.This project is collaboration between Scott Smeltz (Cornell), Suresh Sethi (Cornell), Bradley Harris (Alaska Pacific), Jon Grabowski (Northeastern), Olaf Jensen (Rutgers), and Chris Free (UCSB). 
+This is the GitHub repository for th following paper:
+
+Smeltz TS, Free CM, Harris BP, Jensen OP, Grabowski JH, Sethi SA. Avoiding tradeoffs between global seafood production and seafloor impacts through fisheries innovation. In first revision at Nature Food.
+
+Please contact Scott Smeltz (ts428@cornell.edu) with questions about the paper and Chris Free (cfree14@gmail.com) with questions about this repository.
