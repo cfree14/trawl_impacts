@@ -6,7 +6,7 @@ This is the GitHub repository for catch-only stock assessment analysis conducted
 
 * Smeltz TS, Free CM, Harris BP, Jensen OP, Grabowski JH, Sethi SA (in review). Avoiding tradeoffs between global seafood production and seafloor impacts through fisheries innovation. In second review at _Nature Food_.
 
-The analysis relies on the Robin Hood CMSY method (RH-CMSY) which is documented and provided in this repository: https://github.com/cfree14/rh_cmsy
+The analysis relies on the Robin Hood CMSY method (RH-CMSY) of data-poor stock assessment which is documented and provided in this GitHub repository: https://github.com/cfree14/rh_cmsy
 
 * Free, C.M., Jensen, O.P. (2020) Robin Hood cMSY: using catch data and borrowed information to assess data-poor fish stocks. Available at: https://github.com/cfree14/rh_cmsy/. DOI: https://doi.org/10.5281/zenodo.3866384.
 
